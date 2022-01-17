@@ -35,7 +35,6 @@ pub async fn random_controller(
         response
           .kind(InteractionResponseType::ChannelMessageWithSource)
           .interaction_response_data(|msg| {
-            // println!("{:#?}", options);
             if let ApplicationCommandInteractionDataOptionValue::String(str_args) = &options[0] {
               thread::sleep(Duration::from_millis(1));
               let mut rng = rand::thread_rng();
@@ -55,8 +54,8 @@ pub async fn random_controller(
                 "Syntax Error",
                 indoc!(
                   r#"
-              , 로 구분을 잘 하였는지 확인하여 주십시오
-              ex) /골라 후보1, 후보2, 후보3, ... , 후보n"#
+                  , 로 구분을 잘 하였는지 확인하여 주십시오
+                  ex) /골라 후보1, 후보2, 후보3, ... , 후보n"#
                 ),
               )
             }

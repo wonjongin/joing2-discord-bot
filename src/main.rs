@@ -1,3 +1,4 @@
+mod delete;
 mod error;
 mod mention;
 mod random;
@@ -6,6 +7,7 @@ extern crate dotenv;
 
 use dotenv::dotenv;
 
+use crate::delete::{delete_controller, delete_register};
 use crate::mention::{mention_controller, mention_register};
 use crate::random::{random_controller, random_register};
 use serenity::async_trait;
@@ -13,9 +15,8 @@ use serenity::model::gateway::{Activity, Ready};
 use serenity::model::id::GuildId;
 use serenity::model::interactions::application_command::ApplicationCommand;
 use serenity::model::interactions::Interaction;
-use serenity::prelude::*;
-
 use serenity::model::prelude::application_command::ApplicationCommandInteractionDataOptionValue;
+use serenity::prelude::*;
 use std::env;
 
 struct Handler;
@@ -41,6 +42,7 @@ impl EventHandler for Handler {
 
       mention_controller(&ctx.http, &ctx.http, &command, options.clone()).await;
       random_controller(&ctx.http, &command, options.clone()).await;
+      delete_controller(&ctx.http, &command, options.clone()).await;
     }
   }
 
@@ -61,6 +63,7 @@ impl EventHandler for Handler {
       commands
         .create_application_command(|command| random_register(command))
         .create_application_command(|command| mention_register(command))
+        .create_application_command(|command| delete_register(command))
     })
     .await;
 

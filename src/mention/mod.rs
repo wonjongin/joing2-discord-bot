@@ -37,8 +37,8 @@ pub async fn mention_controller(
             .interaction_response_data(|msg| {
               msg.content(formatdoc!(
                 r#"
-            /m <@!{}>
-            멘션을 DM으로도 보냈어요! 📨"#,
+                /m <@!{}>
+                멘션을 DM으로도 보냈어요! 📨"#,
                 user.id
               ))
             })
@@ -54,9 +54,7 @@ pub async fn mention_controller(
 pub async fn mention_to_dm(user: &User, http: impl CacheHttp) {
   user
     .direct_message(&http, |dm| {
-      println!("here1.1");
       dm.embed(|embed| {
-        println!("here1.2");
         embed.title("🛎 멘션되었어요!").description(format!(
           "📩  {} 에게 멘션되었어요! 메시지를 확인하세요!!",
           user.name

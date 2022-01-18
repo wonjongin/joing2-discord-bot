@@ -72,6 +72,20 @@ impl EventHandler for Handler {
       commands
     );
 
+    let global_commands =
+      ApplicationCommand::set_global_application_commands(&ctx.http, |global_commands| {
+        global_commands
+          .create_application_command(|command| random_register(command))
+          .create_application_command(|command| mention_register(command))
+          .create_application_command(|command| delete_register(command))
+      })
+      .await;
+
+    println!(
+      "I now have the following global slash commands: {:#?}",
+      global_commands
+    );
+
     let guild_command =
       ApplicationCommand::create_global_application_command(&ctx.http, |command| {
         command.name("테스트").description("테스트용")

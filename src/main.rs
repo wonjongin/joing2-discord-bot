@@ -1,5 +1,6 @@
 mod delete;
 mod error;
+mod games;
 mod mention;
 mod random;
 
@@ -8,6 +9,7 @@ extern crate dotenv;
 use dotenv::dotenv;
 
 use crate::delete::{delete_controller, delete_register};
+use crate::games::lol::history::{lol_history_controller, lol_history_register};
 use crate::mention::{mention_controller, mention_register};
 use crate::random::{random_controller, random_register};
 use serenity::async_trait;
@@ -43,6 +45,7 @@ impl EventHandler for Handler {
       mention_controller(&ctx.http, &ctx.http, &command, options.clone()).await;
       random_controller(&ctx.http, &command, options.clone()).await;
       delete_controller(&ctx.http, &command, options.clone()).await;
+      lol_history_controller(&ctx.http, &command, options.clone()).await;
     }
   }
 
@@ -64,6 +67,7 @@ impl EventHandler for Handler {
         .create_application_command(|command| random_register(command))
         .create_application_command(|command| mention_register(command))
         .create_application_command(|command| delete_register(command))
+        .create_application_command(|command| lol_history_register(command))
     })
     .await;
 
@@ -78,6 +82,7 @@ impl EventHandler for Handler {
           .create_application_command(|command| random_register(command))
           .create_application_command(|command| mention_register(command))
           .create_application_command(|command| delete_register(command))
+          .create_application_command(|command| lol_history_register(command))
       })
       .await;
 

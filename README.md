@@ -5,6 +5,7 @@
 * Select one from many options
 * Mention user with direct message
 * Delete messages
+* View lol recent 5 matches and summoner's info
 
 ## Setup
 

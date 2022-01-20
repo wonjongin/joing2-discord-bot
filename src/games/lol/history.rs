@@ -1,3 +1,4 @@
+use crate::games::lol::tools::champid_to_name_ko;
 use chrono::prelude::*;
 use indoc::formatdoc;
 use serde_json::Value;
@@ -10,6 +11,7 @@ use serenity::model::prelude::application_command::{
 use serenity::model::prelude::InteractionResponseType;
 use serenity::utils::Colour;
 use std::collections::HashMap;
+use urlencoding::encode;
 
 /// Convert DateTime to how long ago
 ///
@@ -55,9 +57,10 @@ pub async fn lol_history_controller(
 ) -> () {
   if command.data.name.as_str() == "롤전적" {
     if let ApplicationCommandInteractionDataOptionValue::String(summoner_name) = &options[0] {
+      let summoner_name_encoded: String = encode(&summoner_name.as_str()).to_string();
       let his = reqwest::get(format!(
         "https://www.lolog.me/kr/shortcut/{}",
-        summoner_name
+        summoner_name_encoded
       ))
       .await
       .expect("Unable to get data from lolog")
@@ -91,13 +94,17 @@ pub async fn lol_history_controller(
         let assists = participant["assists"]
           .as_u64()
           .expect("Cannot parse assists data");
+        let champ_id = participant["champ_id"]
+          .as_u64()
+          .expect("Cannot parse champ_id data");
         matches_text.push_str(
           format!(
-            "KDA:{:2}/{:2}/{:2} 평점:{:.2}  ",
+            "KDA:{:2}/{:2}/{:2} 평점:{:2.2} {} ",
             kills,
             deaths,
             assists,
-            ((kills as f64 + assists as f64) / deaths as f64) as f64
+            ((kills as f64 + assists as f64) / deaths as f64) as f64,
+            champid_to_name_ko(champ_id)
           )
           .as_str(),
         );
@@ -106,7 +113,6 @@ pub async fn lol_history_controller(
         );
         matches_text.push_str("```\n");
       }
-      println!("{:#?}", his);
       command
         .create_interaction_response(&http, |response| {
           response
@@ -121,9 +127,7 @@ pub async fn lol_history_controller(
                   )
                   .url(format!(
                     "https://lolog.me/kr/user/{}",
-                    &his["summoner_name"]
-                      .as_str()
-                      .expect("Unable to convert to str")
+                    summoner_name_encoded
                   ))
                   .colour(Colour::ORANGE)
                   .field(
@@ -149,12 +153,13 @@ pub async fn lol_history_controller(
                     "링크",
                     formatdoc!(
                       r#"
-                      [{user} LoLog.me](https://lolog.me/kr/user/{user})
-                      [{user} op.gg](https://www.op.gg/summoner/userName={user})
+                      [{user} LoLog.me](https://lolog.me/kr/user/{user_encoded})
+                      [{user} op.gg](https://www.op.gg/summoner/userName={user_encoded})
                       "#,
                       user = &his["summoner_name"]
                         .as_str()
-                        .expect("Unable to convert to str")
+                        .expect("Unable to convert to str"),
+                      user_encoded = summoner_name_encoded
                     ),
                     false,
                   )
@@ -167,7 +172,7 @@ pub async fn lol_history_controller(
             })
         })
         .await
-        .expect("Error on mention response")
+        .expect("Error on history response")
     }
   } else {
     ()
